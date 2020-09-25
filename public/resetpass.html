@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COOPEFACSA Cambiar contraseña</title>
+    <link rel="stylesheet" href="css/vuetify.min.css">
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
+</head>
+<style>
+    .v-card.v-sheet.theme--light {
+        margin:auto;
+        margin-top:10px !important;
+    }
+    .v-card__text,.v-card__title h3{text-align: center;margin:auto;}
+    html {
+  overflow: hidden !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+</style>
+
+<body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    <div id="app">
+        <div class="contenedor">
+            <v-app class="green lighten-3">
+                <v-card width=400>
+                    <v-card-title class="grey lighten-4 pa-2">
+                        <h3>Cambiar contraseña</h3>
+                    </v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <img src="img/logo.jpg" width=100 alt="logo">
+                        <v-text-field label="Nueva contraseña" v-model="password" type="password" outline></v-text-field>
+                        <v-text-field label="Repetir nueva Contraseña" v-model="password2" type="password" outline></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" @click="resetPass()">Entrar</v-btn>
+                        <v-spacer></v-spacer>
+                    </v-card-actions>
+                </v-card>
+                <v-card>
+                    <v-card-text class="pa-0">
+                        <v-btn text flat @click="window.location.href='http://coopefacsa.coop:3100'">Ir al inicio de sesión</v-btn>
+                    </v-card-text>
+                </v-card>
+            </v-app>
+        </div>
+        <v-dialog v-model="loading" width=300 persistent>
+            <v-card>
+                <v-card-title class="pa-2">
+                    <h3>Procesando</h3>
+                </v-card-title>
+                <v-card-text>
+                    <v-progress-linear :indeterminate="true"></v-progress-linear>
+                </v-card-text>
+            </v-card>
+        </v-dialog>
+    </div>
+
+    <script src="js/vue.js"></script>
+    <script src="js/vuetify.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/sweetalert2.min.js"></script>
+</body>
+
+</html>
