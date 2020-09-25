@@ -89,6 +89,7 @@ var mv = new Vue({
     }
 })
 window.addEventListener('message',(e)=>{
+    if(e.data=="signOut"){localStorage.clear();e.source.postMessage()}
     if(document.title!="COOPEFACSA Login"){return;}
     let ui = localStorage.getItem('userInfo')
     if(e.origin=="http://coopefacsa.coop:3100"){return}

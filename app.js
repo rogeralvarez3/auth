@@ -45,7 +45,6 @@ app.post("/login", (req, res) => {
     }
   });
 });
-
 app.post("/register", (req, res) => {
   var data = req.body;
   if (data.password.length >= 8 && data.password.length <= 25) {
@@ -145,6 +144,11 @@ app.post("/resetPass", (req, res) => {
     }
 
 
+  })
+})
+app.post("/getUsers",(req,res)=>{
+  db.list({tabla:'usuarios'},r=>{
+    res.send(r)
   })
 })
 let port = process.env.port || 3100;

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de usuarios</title>
+    <link rel="stylesheet" href="css/vuetify.min.css">
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
+    <style>
+        body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+    </style>
+</head>
+<body>
+    <div id="app">
+        <v-navigation-drawer app clipped>
+            <v-list>
+                <v-list-tile>
+                    <v-text-field dense hide-details outline label="Buscar" autofocus v-model="filter"></v-text-field>
+                </v-list-tile>
+                <v-list-tile v-for="item in users" :key="item.id">
+                    <v-list-tile-title v-text="item.nombre"></v-list-tile-title>
+                </v-list-tile>
+            </v-list>
+        </v-navigation-drawer>
+        <v-toolbar app clipped-left>
+        </v-toolbar>
+        <v-content>
+            
+        </v-content>
+    </div>
+    <script src="js/vue.js"></script>
+    <script src="js/vuetify.min.js"></script>
+    <script src="js/users.js"></script>
+</body>
+</html>
