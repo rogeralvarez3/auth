@@ -69,6 +69,7 @@ function save(data, resolve) {
 
 function remove(data, resolve) {
   var sql = `delete from ${data.tabla} where ${data.condición}`;
+  console.log(sql)
   cn.query(sql, (err, rows) => {
     if (err) {
       resolve(err);

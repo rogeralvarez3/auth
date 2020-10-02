@@ -1,35 +1,300 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administración de usuarios</title>
-    <link rel="stylesheet" href="css/vuetify.min.css">
+
     <link rel="stylesheet" href="css/sweetalert2.min.css">
-    <style>
-        body{font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
-    </style>
+
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+    <link href="css/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
 </head>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .selected {
+        background-color: dodgerblue;
+        color:white;
+    }
+
+    .foto {
+        border: 1px solid #ddd;
+        height: 100px;
+    }
+
+    .lista {
+        height: 400px;
+    }
+    table{border-collapse: collapse;}
+    th{text-align: left;background-color: #eee;}
+    td,th {
+        padding: 4px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .drawer {
+        display: block;
+        width: 350px;
+        
+    }
+
+    .lista-cargos {
+        height: 350px;
+        overflow-y: scroll;
+        border:1px solid #ddd;
+        border-radius:4px;
+    }
+    .lista-cargos tr{cursor: pointer;}
+    .lista-opciones{
+        height: 350px;
+        overflow-y: scroll;
+        width: 450px;
+    }
+.v-tabs__item--active{
+    color:dodgerblue;
+    border:1px solid dodgerblue;
+    border-radius: 5px 25px 0 0;
+    border-bottom-width: 2px;
+    background-image:linear-gradient(to bottom, white 0%,#eee 100%);
+}
+</style>
+</head>
+
 <body>
     <div id="app">
-        <v-navigation-drawer app clipped>
-            <v-list>
-                <v-list-tile>
-                    <v-text-field dense hide-details outline label="Buscar" autofocus v-model="filter"></v-text-field>
-                </v-list-tile>
-                <v-list-tile v-for="item in users" :key="item.id">
-                    <v-list-tile-title v-text="item.nombre"></v-list-tile-title>
-                </v-list-tile>
-            </v-list>
-        </v-navigation-drawer>
-        <v-toolbar app clipped-left>
-        </v-toolbar>
-        <v-content>
-            
-        </v-content>
+        <v-app>
+            <v-navigation-drawer app clipped>
+                <v-list dense>
+                    <v-list-tile class="grey lighten-4 pt-3">
+                        <v-text-field dense label="Buscar" autofocus v-model="filter"></v-text-field>
+                    </v-list-tile>
+                    <v-divider></v-divider>
+                    <v-list-tile v-for="item in users" :key="item.id" @click="selected=Object.assign({},item)"
+                        :class="item.id==selected.id?'selected':''">
+                        <v-list-tile-title v-text="item.nombre"></v-list-tile-title>
+                    </v-list-tile>
+                </v-list>
+            </v-navigation-drawer>
+            <v-toolbar app clipped-left>
+                <v-toolbar-title>
+                    Administrador de usuarios
+                </v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-btn color="error" dark icon @click="dlgProfiles=true">
+                    <v-icon>group</v-icon>
+                </v-btn>
+                <v-btn color="primary" dark icon>
+                    <v-icon>add</v-icon>
+                </v-btn>
+            </v-toolbar>
+            <v-content>
+                <v-container>
+                    <v-card v-if="selected.id>0" width="650">
+                        <v-card-text>
+                            <v-layout row class="mb-1">
+                                <v-img min-width="100" :src="selected.imagen?selected.imagen:noImageUser" alt="imagen"
+                                    contain class="foto"></v-img>
+                                <v-text-field label="Nombre" v-model="selected.nombre" class="ml-2 headline" outline>
+                                </v-text-field>
+                            </v-layout>
+                            <v-divider></v-divider>
+                            <v-layout row>
+                                <v-text-field label="Correo" v-model="selected.correo" class="mr-2" type="email">
+                                </v-text-field>
+                                <v-text-field label="Teléfono" v-model="selected.teléfono" class="mr-2" type="tel">
+                                </v-text-field>
+                            </v-layout>
+                            <v-layout>
+                                <v-text-field label="Dirección" v-model="selected.dirección" class="mr-2">
+                                </v-text-field>
+                            </v-layout>
+                            <v-layout>
+                                <v-select label="Sucursal" v-model="selected.sucursal" class="mr-2"
+                                    :items="tablas.sucursales" item-text="nombre" item-value="id"></v-select>
+                                <v-select label="Oficina" v-model="selected.departamento" class="mr-2"
+                                    :items="tablas.departamentos" item-text="nombre" item-value="id"></v-select>
+                            </v-layout>
+                            <v-layout>
+                                <v-select label="Cargo" v-model="selected.cargo" class="mr-2" close-on-select
+                                    :items="tablas.cargos" item-text="descripción" item-value="id"></v-select>
+                                <v-select label="Jefe imediato" v-model="selected.jefe_inmediato" class="mr-2"
+                                    :items="jefes" item-text="nombre" item-value="id">
+                                </v-select>
+
+                            </v-layout>
+                        </v-card-text>
+                        <v-divider></v-divider>
+                        <v-card-actions class="grey lighten-4">
+                            <v-spacer></v-spacer>
+                            <v-btn text color="primary" @click="saveUser()">Guardar</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-container>
+            </v-content>
+            <v-dialog persistent width=800 v-model="dlgProfiles">
+                <v-card>
+                    <v-card-title class="grey lighten-4 pa-2">
+                        <h3>Editor de perfiles</h3>
+                    </v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <v-layout row>
+                            <div class="drawer elevation-2 pa-1 pl-2">
+                                <v-text-field label="Buscar" v-model="buscarCargo"></v-text-field>
+                                <div class="lista-cargos">
+                                    <table width="100%">
+                                        <tr v-for="c in listaCargos" :key="c.id" @click="selectedProfile=c.id" :class="c.id==selectedProfile?'selected':''">
+                                            <td class="pl-2">{{c.descripción}}</td>
+                                            <td>
+                                                <v-tooltip top >
+                                                    <template slot="activator" slot-scope="{ on }">
+                                                        <v-btn small icon flat color="error" @click="quitarCargo(c)" class="ma-0" v-on="on"><v-icon small>close</v-icon></v-btn>
+                                                    </template>
+                                                    <span>Quitar cargo</span>
+                                                </v-tooltip>        
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <v-layout row class="pa-2">
+                                    <v-tooltip top >
+                                        <template slot="activator" slot-scope="{ on }">
+                                            <v-btn icon dark color="primary" @click="dlgNewProfile=true" class="ma-0" v-on="on"><v-icon>add</v-icon></v-btn>
+                                        </template>
+                                        <span>Agregar cargo o perfil</span>
+                                    </v-tooltip>   
+                                </v-layout>
+                            </div>
+                            <v-tabs v-if="selectedProfile>0" v-model="activeTab" color="grey lighten-4">
+                                <v-tab v-for="(mod,i) in tablas.módulos" :key="i">
+                                    {{mod.nombre}}
+                                    <v-tooltip top>
+                                        <template slot="activator" slot-scope="{ on }">
+                                            <v-btn small icon dark color="red" v-on="on" @click="tryDeleteMod(mod)"><v-icon small>close</v-icon></v-btn>
+                                            
+                                        </template>
+                                        <span>Quitar módulo</span>
+                                    </v-tooltip>
+                                    
+                                </v-tab>
+                                    <v-tooltip top>
+                                        <template slot="activator" slot-scope="{ on }">
+                                           <v-btn icon color="white" class="blue--text" @click="dlgNewMod=true" v-on="on"><v-icon>add</v-icon></v-btn> 
+                                        </template>
+                                        <span>Agregar módulo</span>
+                                    </v-tooltip>
+                                <v-tab-item v-for="mod in tablas.módulos" :key="mod.id">
+                                    <v-card>
+                                        <v-card-text>
+                                            <v-toolbar dense class="mb-1 elevation-1">
+                                                Permisos
+                                                <v-spacer></v-spacer>
+                                                <v-tooltip top>
+                                                    <template slot="activator" slot-scope="{ on }">
+                                                       <v-btn icon dark color="primary" @click="dlgNewFunc=true" v-on="on"><v-icon>add</v-icon></v-btn> 
+                                                    </template>
+                                                    <span>Agregar función</span>
+                                                </v-tooltip>
+                                            </v-toolbar>
+                                            <div class="lista-opciones">
+                                                <table width="100%">
+                                                    <tr>
+                                                        <th>FUNCIÓN</th>
+                                                        <th>ACTIVADO</th>
+                                                        <th></th>
+                                                    </tr>
+                                                    <tr v-for="fn in funciones" :key="fn.id">
+                                                        <td>{{fn.nombre}}</td>
+                                                        <td><input type="checkbox" :checked="tablas.mis_permisos.findIndex(item=>{return item.id_función==fn.id && item.id_cargo==selectedProfile})>=0" @change="guardarPermiso(fn)"></td>
+                                                        <td>
+                                                            <v-tooltip top>
+                                                                <template slot="activator" slot-scope="{ on }">
+                                                                    <v-btn small icon dark color="red" @click="quitarFunción(fn)" v-on="on"><v-icon small>close</v-icon></v-btn>
+                                                                </template>
+                                                                <span>Quitar función</span>
+                                                            </v-tooltip>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </v-card-text>
+                                    </v-card>
+                                </v-tab-item>
+                            </v-tabs>
+                        </v-layout>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn @click="dlgProfiles=false">cerrar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="dlgNewMod" width="300">
+                <v-card>
+                    <v-card-title class="grey lighten-4"><h3>Nuevo módulo</h3></v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <v-text-field v-model="newMod" label="Descripción del módulo"></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text @click="guardarMod()">Aceptar</v-btn>
+                        <v-btn text @click="dlgNewMod=false">Cancelar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="dlgNewFunc" width="300">
+                <v-card>
+                    <v-card-title class="grey lighten-4"><h3>Nueva función</h3></v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <v-text-field v-model="newFunc.nombre" label="Nombre de la función"></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text @click="guardarFunc()">Aceptar</v-btn>
+                        <v-btn text @click="dlgNewFunc=false">Cancelar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="dlgNewProfile" width="300">
+                <v-card>
+                    <v-card-title class="grey lighten-4"><h3>Nuevo cargo o perfil</h3></v-card-title>
+                    <v-divider></v-divider>
+                    <v-card-text>
+                        <v-text-field v-model="newProfile" label="Nombre del cargo o perfil"></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn text @click="guardarCargo()">Aceptar</v-btn>
+                        <v-btn text @click="dlgNewProfile=false">Cancelar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+            <v-dialog v-model="loading" width=300 persistent>
+                <v-card>
+                    <v-card-title class="pa-2">
+                        <h3>Procesando</h3>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-progress-linear :indeterminate="true"></v-progress-linear>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
+        </v-app>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/babel-polyfill/dist/polyfill.min.js"></script>
     <script src="js/vue.js"></script>
-    <script src="js/vuetify.min.js"></script>
+    <script src="js/vuetify.js"></script>
     <script src="js/users.js"></script>
+    <script src="js/sweetalert2.min.js"></script>
+
 </body>
+
 </html>

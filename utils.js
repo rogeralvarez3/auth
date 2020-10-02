@@ -17,7 +17,7 @@ const sendMail= function(data,resolve) {
             html: `<h4>Usted ha solicitado recuperar su contraseña, haga click en el siguiente link para cambiarla</h4><br><strong>http://coopefacsa.coop:3100/resetPass.html?requestCode=${data.param}</strong><br><span style='color:red'>Nota: El link ya no será válido después de 10 minutos.</span>` // html body
         },
         info => {
-            //console.log(info);
+            console.log(info);
             resolve(info);
         }
     );

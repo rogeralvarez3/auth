@@ -37,7 +37,11 @@ app.post("/login", (req, res) => {
           r.token = myToken;
           delete r.pass;
           delete r.requestCode;
-          res.send(r);
+          db.list({tabla:'mis_permisos',condición:`id_cargo=${r.cargo}`},(permisos=>{
+            r.permisos=permisos
+            res.send(r);
+          }))
+          
         } else {
           res.send({ err: "contraseña incorrecta" });
         }
@@ -45,40 +49,11 @@ app.post("/login", (req, res) => {
     }
   });
 });
-app.post("/register", (req, res) => {
+app.post("/save", (req, res) => {
   var data = req.body;
-  if (data.password.length >= 8 && data.password.length <= 25) {
-    let salt = bcrypt.genSaltSync(saltRounds);
-    let hash = bcrypt.hashSync(data.password, salt);
-    data.tabla = "usuarios";
-    data.data = { correo: data.mail, pass: hash, id: data.id };
-    db.save(data, (r) => {
-      if (r.errno) {
-        //console.log(r);
-        res.send({
-          icon: "error",
-          title: "Error al registrarse",
-          text:
-            "No se ha podido registrar el usuario, favor contacte al administrador del sistema.",
-        });
-      } else {
-        let response = {
-          icon: "success",
-          title: "Usuario registrado correctamente",
-          text:
-            "Se le enviará un correo cuando su usuario se haya activado y pueda usarlo",
-        };
-        res.send(response);
-      }
-    });
-  } else {
-    let response = {
-      icon: "error",
-      title: "Error al registrar",
-      text: "La contraseña no cumple con los requisitos mínimos",
-    };
-    res.send(response);
-  }
+  db.save(data,r=>{
+    res.send(r)
+  })
 });
 
 app.post("/verify", (req, res) => {
@@ -146,8 +121,18 @@ app.post("/resetPass", (req, res) => {
 
   })
 })
-app.post("/getUsers",(req,res)=>{
-  db.list({tabla:'usuarios'},r=>{
+app.post("/getData",(req,res)=>{
+  let data = req.body
+  db.list({tabla:data.tabla},r=>{
+    if(data.tabla=='usuarios'){
+      r.forEach(fila=>{delete fila.pass;delete fila.requestCode})
+    }
+    res.send(r)
+  })
+})
+app.post("/delete",(req,res)=>{
+  let data = req.body
+  db.delete(data,r=>{
     res.send(r)
   })
 })
@@ -156,9 +141,3 @@ let port = process.env.port || 3100;
 let server = app.listen(port, () => {
   console.log(`Server started on http://localhost:${port}`);
 });
-/**if(require.main == module){
-    app.listen(port,()=>{
-        console.log(`servidor corriendo en el puerto ${port}`);
-    })
-}
-module.exports = app;*/
